@@ -30,7 +30,7 @@ body {
     color: #333;
     background-color: #fff;
     overflow-x: hidden;
-    opacity: 0.95;
+    opacity: 1;
     transition: opacity 0.5s ease-in;
     
 }
@@ -131,8 +131,8 @@ img {
 
 /* Animation pour éléments apparaissant */
 .fade-in {
-    opacity: 0;
-    transform: translateY(20px);
+    opacity: 1;
+    transform: translateY(0);
     transition: opacity 0.5s ease-out, transform 0.5s ease-out;
     will-change: opacity, transform;
 }
@@ -249,18 +249,21 @@ nav ul li a.active:after {
 
 /* Hero Section */
 .hero {
-    height: 100vh;
+    padding: 120px 0 80px;
     background-color: #f9f9f9;
-    display: flex;
-    align-items: center;
-    padding-top: 80px;
+    position: relative;
+    z-index: 1;
+    overflow: visible;
+    min-height: calc(100vh - 80px);
+    display: block;
 }
 
 .hero .container {
-    display: grid;
-    grid-template-columns: 1fr 1.3fr;
-    gap: 40px;
+    display: flex;
     align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+    position: relative;
 }
 
 .hero-content h1 {
@@ -415,8 +418,10 @@ nav ul li a.active:after {
 /* Company Overview Section */
 .company-overview {
     padding: 80px 0;
-    background-color: #f5f5f5;
-    text-align: center;
+    background-color: #fff;
+    position: relative;
+    z-index: 2;
+    display: block;
 }
 
 .section-header.text-center {
@@ -2295,5 +2300,72 @@ html, body {
         text-align: center;
         padding: 0 10px;
         margin: 0 auto 20px;
+    }
+}
+
+/* Style spécifique pour résoudre les problèmes de visibilité */
+/* Ce bloc de code doit être ajouté à la fin du fichier CSS */
+
+/* Garantir la visibilité des sections principales */
+#accueil, 
+.company-overview,
+.overview,
+.about,
+.services,
+.recent-projects,
+.testimonials,
+.team,
+.cta,
+.contact-section,
+footer {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: auto !important;
+    transform: none !important;
+}
+
+/* Empiler correctement les sections */
+section {
+    position: relative;
+    z-index: 1;
+}
+
+/* Garantir que le header est au-dessus de tout */
+header {
+    z-index: 10000 !important;
+}
+
+/* Correction spécifique pour la section hero */
+#accueil.hero {
+    padding-top: 100px !important;
+    min-height: calc(100vh - 80px) !important;
+}
+
+/* Correction pour les éléments animés */
+.fade-in {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important; 
+}
+
+/* Correction du problème de dépassement */
+html, body {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Correction spécifique pour les mobiles */
+@media screen and (max-width: 768px) {
+    #accueil.hero {
+        padding-top: 80px !important;
+    }
+    
+    .company-overview {
+        margin-top: 0 !important;
+        padding-top: 40px !important;
     }
 } 

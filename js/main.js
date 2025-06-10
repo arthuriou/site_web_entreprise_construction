@@ -21,6 +21,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const testimonialSliderContainer = document.querySelector('.testimonial-slider-container');
     const mapContainer = document.querySelector('.leaflet-map');
 
+    // Rendre immédiatement visibles les deux premières sections
+    document.getElementById('accueil').style.opacity = '1';
+    document.getElementById('accueil').style.visibility = 'visible';
+    const companyOverview = document.querySelector('.company-overview');
+    if (companyOverview) {
+        companyOverview.style.opacity = '1';
+        companyOverview.style.visibility = 'visible';
+        companyOverview.style.display = 'block';
+    }
+
     // Amélioration de la navigation mobile
     if (hamburger && nav) {
         hamburger.addEventListener('click', () => {
@@ -51,13 +61,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Fonction optimisée pour détecter les éléments visibles
+    // Fonction optimisée pour détecter les éléments visibles - modifiée pour éviter les problèmes
     const handleScrollAnimation = () => {
         // Utiliser requestAnimationFrame pour optimiser les performances
         window.requestAnimationFrame(() => {
             const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
             
             scrollElements.forEach((el) => {
+                // Rendre les éléments visibles par défaut
+                el.classList.add('visible');
+                el.classList.add('always-visible');
+                
+                // Ce bloc est conservé mais ne sera pas exécuté en raison de la condition toujours fausse
+                // maintenant que nous avons ajouté 'always-visible' à tous les éléments
                 if (!el.classList.contains('always-visible')) {
                     const elementTop = el.getBoundingClientRect().top;
                     if (elementTop <= viewportHeight - 100) {
@@ -68,6 +84,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     };
+    
+    // Appeler immédiatement la fonction pour rendre les éléments visibles
+    handleScrollAnimation();
     
     // Optimiser le scroll listener avec throttling
     let scrollThrottleTimer;
@@ -82,10 +101,110 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     header.classList.remove('scrolled');
                 }
-                
-                // Animer les éléments au défilement
-                handleScrollAnimation();
             }, 100); // Limiter à 10 fois par seconde
+        }
+    });
+
+    // Fonction pour la hauteur responsive de la section hero - modifiée pour corriger les problèmes
+    const adjustHeroHeight = () => {
+        if (!hero) return;
+        
+        // S'assurer que la section hero est visible en premier lieu
+        hero.style.visibility = 'visible';
+        hero.style.display = 'block';
+        hero.style.opacity = '1';
+        
+        // Gérer différemment pour mobile
+        if (window.innerWidth <= 768) {
+            if (hero.classList.contains('mobile-adjusted')) {
+                // S'adapter à la hauteur de l'écran
+                const viewportHeight = window.innerHeight;
+                const headerHeight = header ? header.offsetHeight : 70;
+                
+                // Définir une hauteur minimale plus adaptée aux petits écrans
+                hero.style.paddingTop = `${headerHeight + 20}px`; // Augmenté pour éviter chevauchement
+                hero.style.minHeight = `${viewportHeight}px`;
+            }
+        } else {
+            // Pour les écrans plus grands, comportement normal
+            hero.style.minHeight = '100vh';
+            hero.style.paddingTop = '100px'; // Augmenté pour plus d'espace
+        }
+    };
+
+    // Appliquer immédiatement les ajustements
+    adjustHeroHeight();
+
+    // Optimiser l'événement de redimensionnement avec debouncing
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            adjustHeroHeight();
+            fixMobileIssues();
+        }, 250);
+    });
+
+    // Fonction pour corriger des problèmes spécifiques sur mobile
+    const fixMobileIssues = () => {
+        // Corriger les problèmes d'affichage des images sur mobile
+        const projectImages = document.querySelectorAll('.project-image');
+        const teamImages = document.querySelectorAll('.member-image');
+        const mobileTitle = document.querySelector('.mobile-title');
+        
+        if (window.innerWidth <= 576) {
+            // Optimiser les images de projet
+            projectImages.forEach(img => {
+                img.style.height = '180px';
+            });
+            
+            // Optimiser les images d'équipe
+            teamImages.forEach(img => {
+                img.style.height = '200px';
+            });
+            
+            // Optimiser le titre H1 pour mobile
+            if (mobileTitle) {
+                mobileTitle.style.fontSize = '26px';
+                mobileTitle.style.lineHeight = '1.3';
+                mobileTitle.style.padding = '0 5px';
+                mobileTitle.style.textAlign = 'center';
+            }
+        } else if (window.innerWidth <= 768) {
+            // Tablettes et mobiles larges
+            if (mobileTitle) {
+                mobileTitle.style.fontSize = '32px';
+                mobileTitle.style.lineHeight = '1.3';
+                mobileTitle.style.textAlign = 'center';
+            }
+        } else {
+            // Réinitialiser pour les grands écrans
+            projectImages.forEach(img => img.style.height = '');
+            teamImages.forEach(img => img.style.height = '');
+            
+            if (mobileTitle) {
+                mobileTitle.style.fontSize = '';
+                mobileTitle.style.lineHeight = '';
+                mobileTitle.style.textAlign = '';
+                mobileTitle.style.padding = '';
+            }
+        }
+    };
+
+    // Appeler la fonction au chargement
+    window.addEventListener('load', () => {
+        adjustHeroHeight();
+        fixMobileIssues();
+        
+        // Assurer la visibilité des sections principales
+        document.getElementById('accueil').style.opacity = '1';
+        document.getElementById('accueil').style.visibility = 'visible';
+        document.getElementById('accueil').style.display = 'block';
+        
+        if (companyOverview) {
+            companyOverview.style.opacity = '1';
+            companyOverview.style.visibility = 'visible';
+            companyOverview.style.display = 'block';
         }
     });
 
@@ -144,147 +263,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Initialiser le premier slide
         showSlide(0);
     }
-
-    // Fonction pour la hauteur responsive de la section hero
-    const adjustHeroHeight = () => {
-        if (!hero) return;
-        
-        // Gérer différemment pour mobile
-        if (window.innerWidth <= 768) {
-            if (hero.classList.contains('mobile-adjusted')) {
-                // S'adapter à la hauteur de l'écran
-                const viewportHeight = window.innerHeight;
-                const headerHeight = header ? header.offsetHeight : 70;
-                
-                // Définir une hauteur minimale plus adaptée aux petits écrans
-                hero.style.paddingTop = `${headerHeight + 10}px`;
-                hero.style.minHeight = `${viewportHeight}px`;
-                
-                // Forcer la disparition des marges qui peuvent causer des problèmes
-                document.body.style.overflowX = 'hidden';
-                document.body.style.margin = '0';
-                document.body.style.padding = '0';
-            }
-        } else {
-            // Pour les écrans plus grands, comportement normal
-            hero.style.minHeight = '100vh';
-            hero.style.paddingTop = '80px';
-        }
-    };
-
-    // Optimiser l'événement de redimensionnement avec debouncing
-    let resizeTimer;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(() => {
-            adjustHeroHeight();
-            fixMobileIssues();
-        }, 250);
-    });
-    
-    // Initialisation de la carte Leaflet avec chargement différé
-    const initLeafletMap = () => {
-        if (!mapContainer) return;
-        
-        // Charger Leaflet seulement quand la section de carte est visible
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    observer.unobserve(entry.target);
-                    
-                    // Charger dynamiquement Leaflet
-                    if (typeof L === 'undefined') {
-                        Promise.all([
-                            new Promise((resolve) => {
-                                const css = document.createElement('link');
-                                css.rel = 'stylesheet';
-                                css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-                                css.onload = resolve;
-                                document.head.appendChild(css);
-                            }),
-                            new Promise((resolve) => {
-                                const script = document.createElement('script');
-                                script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-                                script.onload = resolve;
-                                document.head.appendChild(script);
-                            })
-                        ]).then(() => {
-                            setTimeout(createMap, 100);
-                        });
-                    } else {
-                        createMap();
-                    }
-                }
-            });
-        }, { threshold: 0.1 });
-        
-        observer.observe(mapContainer);
-        
-        function createMap() {
-            // S'assurer que Leaflet est chargé
-            if (typeof L === 'undefined') return;
-            
-            // Coordonnées KAD BTP
-            const latitude = 6.19022222;
-            const longitude = 1.11525;
-            
-            // Créer la carte avec options optimisées
-            const map = L.map(mapContainer, {
-                center: [latitude, longitude],
-                zoom: 15,
-                zoomControl: true,
-                scrollWheelZoom: false, // Désactiver le zoom par défilement
-                dragging: !L.Browser.mobile // Désactiver le glissement sur mobile
-            });
-            
-            // Ajouter les tuiles avec chargement différé
-            L.tileLayer('https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png', {
-                attribution: '© <a href="https://stadiamaps.com/">Stadia Maps</a>, © <a href="https://openstreetmap.org">OpenStreetMap</a>',
-                maxZoom: 18,
-                tileSize: 512,
-                zoomOffset: -1,
-            }).addTo(map);
-            
-            // Créer le marqueur
-            const icon = L.divIcon({
-                html: '<img src="https://www.goafricaonline.com/build-manifest/images/pin.png" style="width: 28px;">',
-                className: 'custom-marker',
-                iconSize: [28, 39.27],
-                iconAnchor: [14, 39.27]
-            });
-            
-            L.marker([latitude, longitude], { icon, title: "KAD BTP SARL" })
-                .addTo(map)
-                .bindPopup(`
-                    <div style="text-align:center;padding:5px;">
-                        <strong>KAD BTP SARL</strong><br>
-                        Non loin du CEG<br>
-                        Ségbé<br>
-                        Lomé - Togo<br>
-                        <a href="tel:+22892485881">+228 92 48 58 81</a>
-                    </div>
-                `);
-        }
-    };
-
-    // Initialiser avec requestAnimationFrame pour optimiser
-    window.requestAnimationFrame(() => {
-        // Animation des éléments au défilement
-        handleScrollAnimation();
-        
-        // Ajuster la hauteur du hero
-        adjustHeroHeight();
-        
-        // Initialiser la carte
-        initLeafletMap();
-        
-        // Forcer la visibilité après un délai
-        setTimeout(() => {
-            scrollElements.forEach(el => {
-                el.classList.add('visible', 'always-visible');
-            });
-        }, 2000);
-    });
 
     // Filtrer les membres de l'équipe
     filterBtns.forEach(btn => {
@@ -432,64 +410,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Fonction pour corriger des problèmes spécifiques sur mobile
-    const fixMobileIssues = () => {
-        // Corriger les problèmes d'affichage des images sur mobile
-        const projectImages = document.querySelectorAll('.project-image');
-        const teamImages = document.querySelectorAll('.member-image');
-        const mobileTitle = document.querySelector('.mobile-title');
-        
-        if (window.innerWidth <= 576) {
-            // Optimiser les images de projet
-            projectImages.forEach(img => {
-                img.style.height = '180px';
-            });
-            
-            // Optimiser les images d'équipe
-            teamImages.forEach(img => {
-                img.style.height = '200px';
-            });
-            
-            // Ajuster la navigation pour éviter les problèmes de toucher
-            const navLinks = document.querySelectorAll('nav ul li a');
-            navLinks.forEach(link => {
-                link.style.padding = '12px 0';
-            });
-            
-            // Optimiser le titre H1 pour mobile
-            if (mobileTitle) {
-                mobileTitle.style.fontSize = '26px';
-                mobileTitle.style.lineHeight = '1.3';
-                mobileTitle.style.padding = '0 5px';
-                mobileTitle.style.textAlign = 'center';
-            }
-        } else if (window.innerWidth <= 768) {
-            // Tablettes et mobiles larges
-            if (mobileTitle) {
-                mobileTitle.style.fontSize = '32px';
-                mobileTitle.style.lineHeight = '1.3';
-                mobileTitle.style.textAlign = 'center';
-            }
-        } else {
-            // Réinitialiser pour les grands écrans
-            projectImages.forEach(img => img.style.height = '');
-            teamImages.forEach(img => img.style.height = '');
-            
-            if (mobileTitle) {
-                mobileTitle.style.fontSize = '';
-                mobileTitle.style.lineHeight = '';
-                mobileTitle.style.textAlign = '';
-                mobileTitle.style.padding = '';
-            }
-        }
-    };
-
-    // Appeler la fonction au chargement
-    window.addEventListener('load', () => {
-        adjustHeroHeight();
-        fixMobileIssues();
-    });
-
     // Smooth scrolling pour les ancres
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function(e) {
@@ -603,7 +523,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Ajouter des attributs data pour le SEO
+    // Appliquer les attributs data pour le SEO
     document.querySelectorAll('.service-card').forEach(card => {
         card.setAttribute('data-service', 'construction-togo');
     });

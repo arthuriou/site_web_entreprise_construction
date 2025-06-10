@@ -19,6 +19,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="canonical" href="https://www.kadbtp.com/">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
 </head>
 <body>
     <!-- Header -->
@@ -725,10 +728,8 @@
             <div class="map-container">
                 <h3>Nous Trouver</h3>
                 <!-- Carte Leaflet -->
-                <div id="map-widget" class="google-map">
-                    <div class="leaflet-map" style="height: 400px; width: 100%; border-radius: 8px; overflow: hidden;">
-                        <!-- La carte sera chargée par JavaScript -->
-                    </div>
+                <div id="map" class="leaflet-map" style="height: 400px; width: 100%; border-radius: 8px; overflow: hidden;">
+                    <!-- La carte sera chargée par JavaScript -->
                 </div>
             </div>
         </div>
@@ -827,5 +828,28 @@
     <!-- Création des dossiers nécessaires -->
     <script src="js/main.js"></script>
     <script src="js/structured-data.js" async defer></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+    <script>
+        // Initialiser la carte quand le DOM est chargé
+        document.addEventListener('DOMContentLoaded', function() {
+            // Vérifier si l'élément map existe
+            var mapElement = document.getElementById('map');
+            if (mapElement) {
+                // Coordonnées pour Lomé, Togo
+                var map = L.map('map').setView([6.1750, 1.2250], 15);
+                
+                // Ajouter la couche de carte OpenStreetMap
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
+                
+                // Ajouter un marqueur pour l'emplacement de l'entreprise
+                var marker = L.marker([6.1750, 1.2250]).addTo(map);
+                marker.bindPopup("<b>KAD BTP SARL</b><br>Ségbé, Rue des Bâtisseurs<br>Lomé, Togo").openPopup();
+            }
+        });
+    </script>
 </body>
 </html> 
