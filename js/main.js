@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const scrollElements = document.querySelectorAll('.fade-in');
     const testimonialSlider = document.querySelector('.testimonial-slider');
     const testimonialCards = document.querySelectorAll('.testimonial-card');
+    const prevBtn = document.querySelector('.prev-btn');
+    const nextBtn = document.querySelector('.next-btn');
     const testimonialNav = document.querySelectorAll('.testimonial-nav span');
     const filterBtns = document.querySelectorAll('.filter-btn');
     const teamMembers = document.querySelectorAll('.team-member');
@@ -208,38 +210,57 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Gestion du carrousel de témoignages
-    if (testimonialSlider && testimonialNav.length > 0) {
-        let currentSlide = 0;
+    // CARROUSEL DE TÉMOIGNAGES - Implémentation unifiée
+    if (testimonialSlider && testimonialCards.length > 0) {
+        let currentIndex = 0;
 
+        // Fonction pour mettre à jour le carrousel
         const showSlide = (index) => {
-            // Ajuster l'index
+            // Ajuster l'index pour la boucle
             if (index >= totalSlides) {
-                currentSlide = 0;
+                currentIndex = 0;
             } else if (index < 0) {
-                currentSlide = totalSlides - 1;
+                currentIndex = totalSlides - 1;
             } else {
-                currentSlide = index;
+                currentIndex = index;
             }
 
+            // Calculer la position
+            const slideWidth = 100; // En pourcentage pour un affichage responsive
+            
             // Déplacer le slider
-            testimonialSlider.style.transform = `translateX(-${currentSlide * 100}%)`;
+            testimonialSlider.style.transform = `translateX(-${currentIndex * slideWidth}%)`;
             
             // Mettre à jour les indicateurs
             testimonialNav.forEach((dot, i) => {
-                dot.classList.toggle('active', i === currentSlide);
+                dot.classList.toggle('active', i === currentIndex);
             });
         };
 
-        // Naviguer avec les dots
+        // Boutons de navigation
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                showSlide(currentIndex - 1);
+            });
+        }
+        
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                showSlide(currentIndex + 1);
+            });
+        }
+
+        // Navigation avec les points
         testimonialNav.forEach((dot, index) => {
-            dot.addEventListener('click', () => showSlide(index));
+            dot.addEventListener('click', () => {
+                showSlide(index);
+            });
         });
 
         // Navigation au clavier
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft') showSlide(currentSlide - 1);
-            else if (e.key === 'ArrowRight') showSlide(currentSlide + 1);
+            if (e.key === 'ArrowLeft') showSlide(currentIndex - 1);
+            else if (e.key === 'ArrowRight') showSlide(currentIndex + 1);
         });
 
         // Support du swipe sur mobile
@@ -255,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const diff = touchStartX - touchEndX;
                 
                 if (Math.abs(diff) > 50) {
-                    showSlide(diff > 0 ? currentSlide + 1 : currentSlide - 1);
+                    showSlide(diff > 0 ? currentIndex + 1 : currentIndex - 1);
                 }
             }, {passive: true});
         }
@@ -304,6 +325,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     top: targetElement.offsetTop - 80,
                     behavior: 'smooth'
                 });
+                
+                // Fermer le menu mobile si ouvert
+                if (hamburger && hamburger.classList.contains('active')) {
+                    hamburger.classList.remove('active');
+                    nav.classList.remove('active');
+                    document.body.classList.remove('menu-open');
+                }
+                
+                // Mise à jour de l'URL pour le SEO sans rechargement de page
+                history.pushState(null, null, this.getAttribute('href'));
             }
         });
     });
@@ -410,29 +441,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Smooth scrolling pour les ancres
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-                
-                // Fermer le menu mobile si ouvert
-                if (hamburger && hamburger.classList.contains('active')) {
-                    hamburger.classList.remove('active');
-                    nav.classList.remove('active');
-                }
-                
-                // Mise à jour de l'URL pour le SEO sans rechargement de page
-                history.pushState(null, null, this.getAttribute('href'));
-            }
-        });
-    });
-
     // Animation au défilement
     const fadeElements = document.querySelectorAll('.fade-in');
     
@@ -452,76 +460,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Et au défilement
     window.addEventListener('scroll', checkFade);
-    
-    // Témoignages - Carrousel
-    const testimonialSlider = document.querySelector('.testimonial-slider');
-    const testimonialCards = document.querySelectorAll('.testimonial-card');
-    const prevBtn = document.querySelector('.prev-btn');
-    const nextBtn = document.querySelector('.next-btn');
-    const navDots = document.querySelectorAll('.testimonial-nav span');
-    
-    if (testimonialSlider && testimonialCards.length > 0) {
-        let currentIndex = 0;
-        const cardWidth = testimonialCards[0].offsetWidth;
-        
-        // Fonction pour mettre à jour le carrousel
-        function updateSlider() {
-            testimonialSlider.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
-            
-            // Mettre à jour les points de navigation
-            navDots.forEach((dot, index) => {
-                dot.classList.toggle('active', index === currentIndex);
-            });
-        }
-        
-        // Événements des boutons
-        if (prevBtn) {
-            prevBtn.addEventListener('click', () => {
-                currentIndex = (currentIndex > 0) ? currentIndex - 1 : testimonialCards.length - 1;
-                updateSlider();
-            });
-        }
-        
-        if (nextBtn) {
-            nextBtn.addEventListener('click', () => {
-                currentIndex = (currentIndex < testimonialCards.length - 1) ? currentIndex + 1 : 0;
-                updateSlider();
-            });
-        }
-        
-        // Points de navigation
-        navDots.forEach((dot, index) => {
-            dot.addEventListener('click', () => {
-                currentIndex = index;
-                updateSlider();
-            });
-        });
-    }
-    
-    // Filtres d'équipe
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    const teamMembers = document.querySelectorAll('.team-member');
-    
-    if (filterButtons.length > 0 && teamMembers.length > 0) {
-        filterButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                // Retirer la classe active de tous les boutons
-                filterButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                
-                const filter = button.getAttribute('data-filter');
-                
-                // Filtrer les membres de l'équipe
-                teamMembers.forEach(member => {
-                    if (filter === 'all' || member.classList.contains(filter)) {
-                        member.style.display = 'block';
-                    } else {
-                        member.style.display = 'none';
-                    }
-                });
-            });
-        });
-    }
     
     // Appliquer les attributs data pour le SEO
     document.querySelectorAll('.service-card').forEach(card => {
