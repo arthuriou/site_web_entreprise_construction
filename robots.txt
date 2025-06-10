@@ -1,0 +1,9 @@
+# robots.txt pour KAD BTP SARL
+User-agent: *
+Allow: /
+Disallow: /js/
+Disallow: /css/
+
+# Permettre à tous les robots d'explorer le site
+User-agent: *
+Sitemap: https://www.kadbtp.com/sitemap.xml 
